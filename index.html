@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Research Blog</title>
+
+  <!-- Shared formatting -->
+  <link rel="stylesheet" href="assets/styles.css">
+
+  <!-- Blog list loader -->
+  <script src="assets/blog.js" defer></script>
+</head>
+
+<body id="top">
+  <!-- Header / Nav -->
+  <header>
+    <div class="nav">
+      <a class="brand" href="#">YOUR NAME</a>
+      <nav class="navlinks" aria-label="Primary navigation">
+        <a href="#about">About</a>
+        <a href="#blog">Blog</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main content column -->
+  <main>
+    <!-- Article header block -->
+    <h1>Research Notes & Writing</h1>
+    <div class="byline">
+      <span>By Kazi Rahman</span>
+      <span class="dot"></span>
+      <span>Dec 22, 2025</span>
+    </div>
+
+    <!-- Optional opening bullets -->
+    <ul>
+      <li>Short, readable essays and research notes.</li>
+      <li>Blog posts are clickable and live as separate pages.</li>
+    </ul>
+
+    <!-- About -->
+    <h2 id="about">About</h2>
+    <p>
+      A short blurb about the author goes here. Keep it 2–4 lines—focused on your research interests,
+      what you’re reading, and why you write.
+    </p>
+
+    <hr class="sep" />
+
+    <!-- Blog -->
+    <h2 id="blog">Blog</h2>
+    <p class="meta">Clickable post list. Each routes to its own page.</p>
+
+    <!-- Auto-populated from blog/index.json -->
+    <ul class="list" id="blog-list" aria-label="Blog posts list">
+      <li class="list-item">
+        <div class="meta">Loading posts…</div>
+      </li>
+    </ul>
+
+    <!-- Bottom controls -->
+    <div class="bottom-controls" aria-label="Bottom navigation">
+      <a href="#">← Prev</a>
+      <a href="#top">Back to top ↑</a>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-inner">
+      <div>YOUR NAME © 2025</div>
+      <div class="footer-links">
+        <a href="#">Terms of Service</a>
+        <a href="#">Privacy Notice</a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>
