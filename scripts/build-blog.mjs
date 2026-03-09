@@ -150,7 +150,7 @@ function renderPostPage({ title, author, date, bodyHtml }) {
 <body id="top">
   <header>
     <div class="nav">
-      <a class="brand" href="../index.html">YOUR NAME</a>
+      <a class="brand" href="../index.html">Kazi Rahman</a>
       <nav class="navlinks" aria-label="Primary navigation">
         <a href="../index.html#about">About</a>
         <a href="../index.html#blog">Blog</a>
@@ -178,7 +178,7 @@ ${indentHtml(bodyHtml.trim(), 6)}
 
   <footer>
     <div class="footer-inner">
-      <div>YOUR NAME © 2025</div>
+      <div>Kazi Rahman © 2026</div>
       <div class="footer-links">
         <a href="#">Terms of Service</a>
         <a href="#">Privacy Notice</a>
