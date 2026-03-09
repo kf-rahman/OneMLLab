@@ -1,16 +1,14 @@
 [
   {
+    "title": "Diffusion Models Learning Plan",
+    "date": "2026-03-08",
+    "excerpt": "Here is how I plan to build a foundation in diffusion models.",
+    "url": "blog/diffusion-study-guide.html"
+  },
+  {
     "title": "Hello World",
     "date": "2025-12-22",
     "excerpt": "First post to test the publishing workflow.",
     "url": "blog/hello-world.html"
-  }
-
-
-    {
-    "title": "Diffusion Model Learning Plan",
-    "date": "2026-03-08",
-    "excerpt": "Here is how I plan on learing Diffusion Models ",
-    "url": "blog/diffusion-study-guide.html"
   }
 ]

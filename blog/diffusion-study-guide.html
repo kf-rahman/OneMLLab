@@ -1,10 +1,9 @@
-
 <!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Studying Diffusion Models</title>
+  <title>Diffusion Models Learning Plan</title>
   <link rel="stylesheet" href="../assets/styles.css">
 </head>
 <body id="top">
@@ -13,129 +12,142 @@
       <a class="brand" href="../index.html">YOUR NAME</a>
       <nav class="navlinks" aria-label="Primary navigation">
         <a href="../index.html#about">About</a>
-        <a href="../index.html#papers">Research</a>
         <a href="../index.html#blog">Blog</a>
       </nav>
     </div>
   </header>
 
   <main>
-    <!-- CONTENT ONLY BELOW -->
     <h1>Diffusion Models Learning Plan</h1>
     <div class="byline">
       <span>By Kazi Rahman</span>
       <span class="dot"></span>
-      <span>March 8,2026</span>
+      <span>March 8, 2026</span>
     </div>
 
-    <p>This post is pretty simple. It is my contract and my plan towards building a foundational understanding of diffusion models. My end goal is to build an expertise in world models. Here is how we are breaking down the study plan:
-1.The mathematics:
-	- The speciality of Gaussian Distribution
-	- The relationship between Markov Chain and Gaussian Distribution
-	- Wth is reparameterizationt rick?
-These are some high level mathematical concepts. Its meant to get myself to ask the questions in the right direction and fill in the blanks or review whatever is needed when its needed.
-Readings:
-	- Blog:** Lilian Weng — "From Autoencoder to Beta-VAE" (builds intuition for latent spaces before diffusion)
-	-Book:** *Deep Learning* by Goodfellow, Bengio, Courville — Ch. 3 (Probability) and Ch. 16 (Structured Probabilistic Models) — free online
-- **Book:** *Pattern Recognition and Machine Learning* by Bishop — Ch. 1–2 for probability grounding
-
-So what:
- Once these questions have been answered along with the readings there needs to be way to really comprehend the information that I graspjed. In the world of LLM coding writing the code line by line is not as useful as being able to make architectural and key decisions that drive the code. So the way i will assess how well I have understood what I learnt is by:
-- Look at a markov chain that is converging and try to identify its data distribution and how can we modify it
--how would we implement KL diveregene between two gaussians
-- how would we debug a 1d Guassian
-
-2.Score based genrateive models
-Key concepts:
- 
-    What generative models are trying to do: learn p(x) from data
-    Why likelihood-based models are hard (intractable normalizing constants)
-    Score matching: instead of learning p(x), learn ∇ log p(x)
-    Langevin dynamics: how you sample using the score
-    Noise-conditioned score networks (NCSN)
-Reading:
-
-    Paper: Estimation of Non-Normalized Statistical Models by Score Matching — Hyvärinen 2005 (the original score matching paper — read for intuition, not implementation)
-    Paper: Generative Modeling by Estimating Gradients of the Data Distribution — Song & Ermon, NeurIPS 2019 ⭐ (foundational — read this carefully)
-    Blog: Yang Song's own blog post "Generative Modeling by Estimating Gradients of the Data Distribution" — cleaner than the paper
-    Blog: Lilian Weng — "What are Diffusion Models?" — read the first half
-So what:
--What is score matchingg and why would we choose this over maximum likelihood for generative models
--How a NCSN works and how can we apply to datasets
-
-3. Diffusion Probabilist Models
-Key concepts to look at:
-
-    The forward process: gradually adding Gaussian noise over T steps
-    The closed-form forward process (why you can jump to any noise level directly)
-    The reverse process: learning to denoise step by step
-    The ELBO loss and why it simplifies to a noise prediction objective
-    The U-Net architecture used as the denoiser
-    Variance schedules: linear, cosine
-Readings:
-
-    Paper: Denoising Diffusion Probabilistic Models — Ho et al., NeurIPS 2020 ⭐⭐ (read this 3 times — each time you'll understand something new)
-    Blog: Lilian Weng — "What are Diffusion Models?" — full post
-    Blog: "The Annotated Diffusion Model" — Hugging Face (walks through the paper line by line with code)
-    Video: Yannic Kilcher's DDPM paper walkthrough on YouTube ⭐
-    Video: Andrej Karpathy — any lecture on generative models for intuition building
-So what:
-- Breakdown denoising diffusion probabilistic model
--Describe the loss curve for this model
-
-4.Understand the sampling efficiency problem and how it was solved
-Key concepts:
-
-    Why DDPM is slow at inference (1000 steps)
-    Non-Markovian processes — breaking the Markov assumption during sampling
-    DDIM: deterministic vs stochastic sampling
-    The trade-off between speed and sample diversity
-Readings:
-
-    Paper: Denoising Diffusion Implicit Models — Song et al., ICLR 2021 ⭐
-    Blog: "DDIM — Denoising Diffusion Implicit Models" — annotated walkthrough by Hugging Face
-So what:
-Compare the methodologies
-
-5. Classifier-Free Guidance & Conditional Generation
-Key concepts:
-
-    Classifier guidance: using a separate classifier to steer sampling
-    Classifier-free guidance (CFG): conditioning built into the model itself
-    How you condition on text, images, class labels, or any signal
-    Guidance scale — the dial between diversity and fidelity
-    Cross-attention as the conditioning mechanism in U-Nets
-Readings:
-
-    Paper: Diffusion Models Beat GANs on Image Synthesis — Dhariwal & Nichol, NeurIPS 2021 (classifier guidance)
-    Paper: Classifier-Free Diffusion Guidance — Ho & Salimans, 2022 ⭐⭐ (short paper, read carefully)
-    Blog: "Classifier-Free Guidance" — Lilian Weng's diffusion series
-So what:
- 	
-
-
-
-
-
-
-     </p>
-
-    <h2>Why this blog</h2>
-    <ul>
-      <li>Plain HTML + CSS</li>
-      <li>Fast to publish</li>
-      <li>Readable by default</li>
-    </ul>
-
-    <pre><code>console.log("hello world");</code></pre>
+    <div class="post-content">
+      <p>This post is a contract with myself: build a real foundation in diffusion models so I can eventually develop strong intuition for world models. Rather than collecting random links, I want a study plan with clear stages, concrete readings, and a way to test whether I actually understand the material.</p>
+      <p>Here is the plan.</p>
+      <h2>1. The Mathematics</h2>
+      <p>The first step is getting comfortable with the mathematical ideas that keep showing up in diffusion papers.</p>
+      <ul>
+      <li>The special role of Gaussian distributions</li>
+      <li>The relationship between Markov chains and Gaussian transitions</li>
+      <li>What the reparameterization trick is doing</li>
+      </ul>
+      <p>These are deliberately high-level prompts. The goal is to ask better questions, fill in missing background when needed, and review the right concepts at the right time.</p>
+      <p><strong>Readings</strong></p>
+      <ul>
+      <li>Lilian Weng, “From Autoencoder to Beta-VAE”</li>
+      <li><em>Deep Learning</em> by Goodfellow, Bengio, and Courville: Chapters 3 and 16</li>
+      <li><em>Pattern Recognition and Machine Learning</em> by Bishop: Chapters 1 and 2</li>
+      </ul>
+      <p><strong>So what?</strong></p>
+      <p>After the readings, I need to pressure-test whether I can use the ideas, not just restate them. In the LLM era, typing code line by line matters less than making the right architectural and debugging decisions.</p>
+      <ul>
+      <li>Look at a converging Markov chain and identify the distribution it is approaching, then ask how the transition process could be modified</li>
+      <li>Work out KL divergence between two Gaussians</li>
+      <li>Debug a simple 1D Gaussian setup from first principles</li>
+      </ul>
+      <h2>2. Score-Based Generative Models</h2>
+      <p><strong>Key concepts</strong></p>
+      <ul>
+      <li>What generative models are trying to do: learn <code>p(x)</code> from data</li>
+      <li>Why likelihood-based models can be difficult in practice</li>
+      <li>Score matching: learn <code>∇ log p(x)</code> instead of <code>p(x)</code></li>
+      <li>Langevin dynamics as a sampling procedure</li>
+      <li>Noise-conditioned score networks (NCSN)</li>
+      </ul>
+      <p><strong>Readings</strong></p>
+      <ul>
+      <li>Hyvarinen (2005), “Estimation of Non-Normalized Statistical Models by Score Matching”</li>
+      <li>Song and Ermon (2019), “Generative Modeling by Estimating Gradients of the Data Distribution”</li>
+      <li>Yang Song, “Generative Modeling by Estimating Gradients of the Data Distribution”</li>
+      <li>Lilian Weng, “What are Diffusion Models?” (first half)</li>
+      </ul>
+      <p><strong>So what?</strong></p>
+      <ul>
+      <li>Explain what score matching is and why it may be preferable to maximum likelihood in some generative settings</li>
+      <li>Explain how an NCSN works and how it can be applied to datasets</li>
+      </ul>
+      <h2>3. Diffusion Probabilistic Models</h2>
+      <p><strong>Key concepts</strong></p>
+      <ul>
+      <li>The forward process: adding Gaussian noise over many steps</li>
+      <li>The closed-form forward process and why direct jumps are possible</li>
+      <li>The reverse process: learning to denoise step by step</li>
+      <li>Why the ELBO simplifies into a noise-prediction objective</li>
+      <li>The U-Net denoiser architecture</li>
+      <li>Variance schedules such as linear and cosine</li>
+      </ul>
+      <p><strong>Readings</strong></p>
+      <ul>
+      <li>Ho et al. (2020), “Denoising Diffusion Probabilistic Models”</li>
+      <li>Lilian Weng, “What are Diffusion Models?”</li>
+      <li>“The Annotated Diffusion Model” from Hugging Face</li>
+      <li>Yannic Kilcher’s DDPM walkthrough</li>
+      <li>Relevant Andrej Karpathy lectures on generative models</li>
+      </ul>
+      <p><strong>So what?</strong></p>
+      <ul>
+      <li>Break down DDPM clearly enough to explain it from memory</li>
+      <li>Describe what the loss is optimizing and how training should behave</li>
+      </ul>
+      <h2>4. Sampling Efficiency and DDIM</h2>
+      <p><strong>Key concepts</strong></p>
+      <ul>
+      <li>Why DDPM inference is slow when sampling requires many steps</li>
+      <li>How non-Markovian sampling changes the process</li>
+      <li>DDIM as deterministic versus stochastic sampling</li>
+      <li>The trade-off between speed and sample diversity</li>
+      </ul>
+      <p><strong>Readings</strong></p>
+      <ul>
+      <li>Song et al. (2021), “Denoising Diffusion Implicit Models”</li>
+      <li>Hugging Face’s annotated DDIM walkthrough</li>
+      </ul>
+      <p><strong>So what?</strong></p>
+      <ul>
+      <li>Compare DDPM and DDIM in terms of assumptions, speed, and outputs</li>
+      </ul>
+      <h2>5. Classifier-Free Guidance and Conditional Generation</h2>
+      <p><strong>Key concepts</strong></p>
+      <ul>
+      <li>Classifier guidance with a separate classifier during sampling</li>
+      <li>Classifier-free guidance built directly into the model</li>
+      <li>Conditioning on text, images, class labels, or other signals</li>
+      <li>Guidance scale as a trade-off between diversity and fidelity</li>
+      <li>Cross-attention as a conditioning mechanism inside U-Nets</li>
+      </ul>
+      <p><strong>Readings</strong></p>
+      <ul>
+      <li>Dhariwal and Nichol (2021), “Diffusion Models Beat GANs on Image Synthesis”</li>
+      <li>Ho and Salimans (2022), “Classifier-Free Diffusion Guidance”</li>
+      <li>Lilian Weng’s diffusion posts on classifier-free guidance</li>
+      </ul>
+      <p><strong>So what?</strong></p>
+      <ul>
+      <li>Explain how guidance changes the sampling process and what trade-offs it introduces</li>
+      <li>Be able to describe how text conditioning plugs into a diffusion model</li>
+      </ul>
+      <h2>What Success Looks Like</h2>
+      <p>I will consider this phase successful if I can explain the full diffusion pipeline in plain language, connect the key math to the model design, and reason about implementation choices without depending entirely on other people’s code.</p>
+    </div>
 
     <div class="bottom-controls">
       <a href="../index.html#blog">← Back to blog</a>
       <a href="#top">Back to top ↑</a>
     </div>
-    <!-- CONTENT ONLY ABOVE -->
   </main>
 
   <footer>
     <div class="footer-inner">
       <div>YOUR NAME © 2025</div>
+      <div class="footer-links">
+        <a href="#">Terms of Service</a>
+        <a href="#">Privacy Notice</a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

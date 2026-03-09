@@ -1,0 +1,10 @@
+{
+  "name": "onemllab",
+  "private": true,
+  "scripts": {
+    "build:blog": "node scripts/build-blog.mjs"
+  },
+  "dependencies": {
+    "markdown-it": "^14.1.1"
+  }
+}
