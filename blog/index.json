@@ -5,4 +5,12 @@
     "excerpt": "First post to test the publishing workflow.",
     "url": "blog/hello-world.html"
   }
+
+
+    {
+    "title": "Diffusion Model Learning Plan",
+    "date": "2026-03-08",
+    "excerpt": "Here is how I plan on learing Diffusion Models ",
+    "url": "blog/diffusion-study-guide.html"
+  }
 ]
