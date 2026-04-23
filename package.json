@@ -2,7 +2,10 @@
   "name": "onemllab",
   "private": true,
   "scripts": {
-    "build:blog": "node scripts/build-blog.mjs"
+    "dev": "node scripts/serve.mjs",
+    "build:blog": "node scripts/build-blog.mjs",
+    "new-post": "node scripts/new-post.mjs",
+    "watch": "node scripts/watch-blog.mjs"
   },
   "dependencies": {
     "markdown-it": "^14.1.1"

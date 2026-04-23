@@ -1,0 +1,306 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>New Post — Kazi Rahman</title>
+  <link rel="stylesheet" href="assets/styles.css" />
+  <style>
+    .field { margin-bottom: 20px; }
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--primary);
+      margin-bottom: 6px;
+    }
+    label .hint {
+      font-weight: 400;
+      text-transform: none;
+      letter-spacing: 0;
+      font-size: 12px;
+      color: rgba(31,36,34,0.55);
+    }
+    input, textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fff;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 15px;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    input:focus, textarea:focus { border-color: var(--accent); }
+    textarea {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13px;
+      min-height: 400px;
+      resize: vertical;
+      line-height: 1.65;
+    }
+    .row { display: flex; gap: 14px; }
+    .row .field { flex: 1; }
+    .row .field.short { flex: 0 0 150px; }
+    .actions { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+    button {
+      padding: 10px 26px;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    button:disabled { opacity: 0.45; cursor: not-allowed; }
+    button:hover:not(:disabled) { opacity: 0.82; }
+    #status { font-size: 14px; line-height: 1.5; }
+    #status.ok { color: var(--primary); }
+    #status.err { color: #b94040; }
+
+    /* token setup screen */
+    #token-screen { max-width: 520px; }
+    #token-screen p { color: rgba(31,36,34,0.75); font-size: 15px; }
+    #token-screen ol { color: rgba(31,36,34,0.75); font-size: 15px; padding-left: 20px; }
+    #token-screen ol li { margin: 8px 0; }
+    #token-screen a { color: var(--primary); }
+    .token-row { display: flex; gap: 10px; margin-top: 6px; }
+    .token-row input { flex: 1; font-family: ui-monospace, monospace; font-size: 13px; }
+    .token-row button { white-space: nowrap; }
+    .token-note { font-size: 12px; color: rgba(31,36,34,0.5); margin-top: 8px; }
+
+    #editor-screen { display: none; }
+
+    .token-edit {
+      font-size: 12px;
+      color: rgba(31,36,34,0.45);
+      cursor: pointer;
+      text-decoration: underline;
+      background: none;
+      border: none;
+      padding: 0;
+      font-family: inherit;
+    }
+    .token-edit:hover { color: var(--primary); }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="nav">
+      <a class="brand" href="index.html">Kazi Rahman</a>
+      <nav class="navlinks">
+        <a href="index.html#blog">Blog</a>
+        <a href="admin.html" style="color:var(--primary);font-weight:600">New Post</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- Step 1: token setup -->
+    <div id="token-screen">
+      <h1>Connect to GitHub</h1>
+      <p>To publish posts, this page needs a GitHub token so it can commit files to your repo on your behalf.</p>
+      <ol>
+        <li>Go to <a href="https://github.com/settings/tokens/new" target="_blank" rel="noopener">github.com/settings/tokens/new</a></li>
+        <li>Give it a name like <strong>OneMLLab blog</strong></li>
+        <li>Under <strong>Scopes</strong>, check <strong>repo</strong></li>
+        <li>Click <strong>Generate token</strong> and paste it below</li>
+      </ol>
+      <div class="token-row">
+        <input id="token-input" type="password" placeholder="ghp_…" autocomplete="off" />
+        <button id="token-save-btn">Save token</button>
+      </div>
+      <p class="token-note">The token is saved only in your browser's localStorage and never sent anywhere except GitHub's API.</p>
+    </div>
+
+    <!-- Step 2: post editor -->
+    <div id="editor-screen">
+      <h1>New Post <button class="token-edit" id="reset-token-btn">change token</button></h1>
+
+      <form id="post-form">
+        <div class="row">
+          <div class="field">
+            <label for="title">Title</label>
+            <input id="title" type="text" placeholder="What are you writing about?" required autofocus />
+          </div>
+          <div class="field short">
+            <label for="date">Date</label>
+            <input id="date" type="date" required />
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="excerpt">Excerpt <span class="hint">— optional, shown in the post list</span></label>
+          <input id="excerpt" type="text" placeholder="One sentence summary" />
+        </div>
+
+        <div class="field">
+          <label for="body">Content <span class="hint">— Markdown</span></label>
+          <textarea id="body" placeholder="Write your post here…"></textarea>
+        </div>
+
+        <div class="actions">
+          <button type="submit" id="publish-btn">Publish</button>
+          <span id="status"></span>
+        </div>
+      </form>
+    </div>
+
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+      <div>Kazi Rahman © 2026</div>
+      <div class="footer-links">
+        <a href="#">Terms of Service</a>
+        <a href="#">Privacy Notice</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const REPO = "kf-rahman/OneMLLab";
+    const TOKEN_KEY = "gh_pat_onemllab";
+
+    const tokenScreen  = document.getElementById("token-screen");
+    const editorScreen = document.getElementById("editor-screen");
+    const tokenInput   = document.getElementById("token-input");
+    const tokenSaveBtn = document.getElementById("token-save-btn");
+    const resetTokenBtn= document.getElementById("reset-token-btn");
+    const postForm     = document.getElementById("post-form");
+    const publishBtn   = document.getElementById("publish-btn");
+    const statusEl     = document.getElementById("status");
+    const dateInput    = document.getElementById("date");
+
+    // ── init ─────────────────────────────────────────────────────────────────
+
+    dateInput.value = new Date().toISOString().slice(0, 10);
+
+    function getToken() { return localStorage.getItem(TOKEN_KEY) || ""; }
+
+    function showEditor() {
+      tokenScreen.style.display  = "none";
+      editorScreen.style.display = "block";
+    }
+
+    function showTokenScreen() {
+      tokenScreen.style.display  = "block";
+      editorScreen.style.display = "none";
+    }
+
+    if (getToken()) {
+      showEditor();
+    }
+
+    // ── token handling ────────────────────────────────────────────────────────
+
+    tokenSaveBtn.addEventListener("click", () => {
+      const val = tokenInput.value.trim();
+      if (!val) return;
+      localStorage.setItem(TOKEN_KEY, val);
+      tokenInput.value = "";
+      showEditor();
+    });
+
+    tokenInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") tokenSaveBtn.click();
+    });
+
+    resetTokenBtn.addEventListener("click", () => {
+      localStorage.removeItem(TOKEN_KEY);
+      showTokenScreen();
+    });
+
+    // ── publish ───────────────────────────────────────────────────────────────
+
+    function toSlug(title) {
+      return title
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-|-$/g, "");
+    }
+
+    function toBase64(str) {
+      return btoa(unescape(encodeURIComponent(str)));
+    }
+
+    postForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const token   = getToken();
+      const title   = document.getElementById("title").value.trim();
+      const date    = document.getElementById("date").value;
+      const excerpt = document.getElementById("excerpt").value.trim();
+      const body    = document.getElementById("body").value;
+
+      if (!token) { showTokenScreen(); return; }
+
+      publishBtn.disabled = true;
+      publishBtn.textContent = "Publishing…";
+      statusEl.className = "";
+      statusEl.textContent = "";
+
+      const slug     = toSlug(title);
+      const fileName = `${date}-${slug}.md`;
+      const content  = [
+        "---",
+        `title: ${title}`,
+        `date: ${date}`,
+        `slug: ${slug}`,
+        `excerpt: ${excerpt}`,
+        "---",
+        "",
+        body,
+      ].join("\n");
+
+      try {
+        const res = await fetch(
+          `https://api.github.com/repos/${REPO}/contents/blog/posts/${fileName}`,
+          {
+            method: "PUT",
+            headers: {
+              Authorization: `token ${token}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              message: `Add post: ${title}`,
+              content: toBase64(content),
+            }),
+          }
+        );
+
+        if (res.status === 401) {
+          localStorage.removeItem(TOKEN_KEY);
+          throw new Error("Token rejected — please re-enter it.");
+        }
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err.message || `GitHub API error ${res.status}`);
+        }
+
+        statusEl.className = "ok";
+        statusEl.innerHTML =
+          `Committed! GitHub Actions is building your post — it'll be live at ` +
+          `<a href="blog/${slug}.html">blog/${slug}.html</a> in about a minute.`;
+
+        postForm.reset();
+        dateInput.value = new Date().toISOString().slice(0, 10);
+
+      } catch (err) {
+        statusEl.className = "err";
+        statusEl.textContent = "Error: " + err.message;
+        if (err.message.includes("re-enter")) showTokenScreen();
+      } finally {
+        publishBtn.disabled = false;
+        publishBtn.textContent = "Publish";
+      }
+    });
+  </script>
+</body>
+</html>
