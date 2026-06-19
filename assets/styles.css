@@ -194,6 +194,90 @@ code{
 }
 
 /* =========================
+   Post content (rendered markdown)
+   ========================= */
+.post-content{
+  font-size: 16px;
+}
+.post-content > :first-child{ margin-top: 0; }
+.post-content h2{
+  margin: 36px 0 12px;
+  font-size: 22px;
+}
+.post-content h3{
+  margin: 26px 0 8px;
+  font-size: 17px;
+  color: var(--primary);
+  letter-spacing: -0.01em;
+}
+.post-content p{ margin: 0 0 16px; }
+.post-content ul,
+.post-content ol{
+  margin: 12px 0 18px 22px;
+  padding: 0;
+}
+.post-content li{ margin: 6px 0; }
+.post-content li > ul,
+.post-content li > ol{ margin: 6px 0 6px 18px; }
+
+.post-content img{
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 22px auto;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+}
+
+.post-content blockquote{
+  margin: 20px 0;
+  padding: 8px 0 8px 18px;
+  border-left: 3px solid var(--accent);
+  color: rgba(31,36,34,0.78);
+  font-style: italic;
+}
+.post-content blockquote p:last-child{ margin-bottom: 0; }
+
+.post-content hr{
+  border: 0;
+  border-top: 1px solid var(--border);
+  margin: 30px 0;
+}
+
+/* inline code */
+.post-content :not(pre) > code{
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 1px 6px;
+  font-size: 0.9em;
+}
+/* code blocks override inline styling */
+.post-content pre code{
+  background: none;
+  border: 0;
+  padding: 0;
+  font-size: inherit;
+}
+
+.post-content table{
+  width: 100%;
+  border-collapse: collapse;
+  margin: 18px 0 22px;
+  font-size: 14px;
+}
+.post-content th,
+.post-content td{
+  border: 1px solid var(--border);
+  padding: 8px 12px;
+  text-align: left;
+}
+.post-content th{
+  background: rgba(127, 174, 147, 0.12);
+  color: var(--primary);
+}
+
+/* =========================
    Figure + caption
    ========================= */
 figure{
