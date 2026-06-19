@@ -141,12 +141,9 @@
     #status.busy { color: rgba(31,36,34,0.7); }
     .draft-note{ font-size: 12px; color: rgba(31,36,34,0.45); }
 
-    /* ── token setup ───────────────────────────────────────── */
-    #token-screen { max-width: 540px; }
-    #token-screen p { color: rgba(31,36,34,0.75); font-size: 15px; }
-    #token-screen ol { color: rgba(31,36,34,0.75); font-size: 15px; padding-left: 20px; }
-    #token-screen ol li { margin: 8px 0; }
-    #token-screen a { color: var(--primary); }
+    /* ── sign in ───────────────────────────────────────────── */
+    #signin-screen { max-width: 540px; }
+    #signin-screen p { color: rgba(31,36,34,0.75); font-size: 15px; }
     .token-row { display: flex; gap: 10px; margin-top: 6px; }
     .token-row input { flex: 1; font-family: ui-monospace, monospace; font-size: 13px; }
     .token-row button { white-space: nowrap; }
@@ -180,25 +177,19 @@
 
   <main>
 
-    <!-- Step 1: token setup -->
-    <div id="token-screen">
-      <h1>Connect to GitHub</h1>
-      <p>To publish, this page commits files to your repo on your behalf. It needs a GitHub token once.</p>
-      <ol>
-        <li>Open <a href="https://github.com/settings/tokens/new?description=OneMLLab%20blog&scopes=repo" target="_blank" rel="noopener">this pre-filled token page</a></li>
-        <li>Make sure <strong>repo</strong> is checked under Scopes</li>
-        <li>Click <strong>Generate token</strong>, then paste it below</li>
-      </ol>
+    <!-- Step 1: sign in -->
+    <div id="signin-screen">
+      <h1>Admin</h1>
+      <p>Sign in with GitHub to write and publish.</p>
       <div class="token-row">
-        <input id="token-input" type="password" placeholder="ghp_…" autocomplete="off" />
-        <button class="primary" id="token-save-btn">Save</button>
+        <button class="primary" id="signin-btn">Sign in with GitHub</button>
       </div>
-      <p class="token-note">Stored only in this browser's localStorage. Sent only to GitHub's API.</p>
+      <p class="token-note" id="signin-error"></p>
     </div>
 
     <!-- Step 2: writing studio -->
     <div id="editor-screen">
-      <h1 style="margin-bottom:18px">New entry <button class="token-edit" id="reset-token-btn">change token</button></h1>
+      <h1 style="margin-bottom:18px">New entry <button class="token-edit" id="signout-btn">sign out</button></h1>
 
       <form id="post-form">
         <div class="row">
@@ -263,20 +254,25 @@
   </footer>
 
   <script>
+    // ── config ───────────────────────────────────────────────────────────────
+    // Set this to your deployed auth worker URL (no trailing slash).
+    // See auth-worker/README.md.
+    const AUTH_BASE  = "REPLACE_WITH_WORKER_URL";
+
     const REPO       = "kf-rahman/OneMLLab";
     const BRANCH     = "main";
-    const TOKEN_KEY  = "gh_pat_onemllab";
+    const TOKEN_KEY  = "gh_token_onemllab";
     const DRAFT_KEY  = "draft_onemllab";
     const API        = `https://api.github.com/repos/${REPO}`;
 
     const md = window.markdownit({ html: false, linkify: true, typographer: true });
 
     // ── elements ───────────────────────────────────────────────────────────
-    const tokenScreen   = document.getElementById("token-screen");
+    const signinScreen  = document.getElementById("signin-screen");
     const editorScreen  = document.getElementById("editor-screen");
-    const tokenInput    = document.getElementById("token-input");
-    const tokenSaveBtn  = document.getElementById("token-save-btn");
-    const resetTokenBtn = document.getElementById("reset-token-btn");
+    const signinBtn     = document.getElementById("signin-btn");
+    const signinError   = document.getElementById("signin-error");
+    const signoutBtn    = document.getElementById("signout-btn");
     const postForm      = document.getElementById("post-form");
     const publishBtn    = document.getElementById("publish-btn");
     const statusEl      = document.getElementById("status");
@@ -298,28 +294,40 @@
 
     function getToken() { return localStorage.getItem(TOKEN_KEY) || ""; }
     function showEditor() {
-      tokenScreen.style.display = "none";
+      signinScreen.style.display = "none";
       editorScreen.style.display = "block";
       renderPreview();
     }
-    function showTokenScreen() {
-      tokenScreen.style.display = "block";
+    function showSignin() {
+      signinScreen.style.display = "block";
       editorScreen.style.display = "none";
     }
     if (getToken()) showEditor();
 
-    // ── token handling ────────────────────────────────────────────────────────
-    tokenSaveBtn.addEventListener("click", () => {
-      const val = tokenInput.value.trim();
-      if (!val) return;
-      localStorage.setItem(TOKEN_KEY, val);
-      tokenInput.value = "";
-      showEditor();
-    });
-    tokenInput.addEventListener("keydown", (e) => { if (e.key === "Enter") tokenSaveBtn.click(); });
-    resetTokenBtn.addEventListener("click", () => {
+    // ── sign in with GitHub (OAuth via the auth worker) ─────────────────────────
+    function signIn() {
+      signinError.textContent = "";
+      const popup = window.open(`${AUTH_BASE}/auth`, "github-signin", "width=720,height=760");
+      if (!popup) { signinError.textContent = "Popup blocked — allow popups for this site and retry."; return; }
+
+      function onMessage(e) {
+        if (e.origin !== new URL(AUTH_BASE).origin) return;       // only trust the worker
+        const data = e.data;
+        if (!data || data.source !== "oneml-oauth") return;
+        window.removeEventListener("message", onMessage);
+        if (data.token) {
+          localStorage.setItem(TOKEN_KEY, data.token);
+          showEditor();
+        } else {
+          signinError.textContent = "Sign-in failed: " + (data.error || "unknown error");
+        }
+      }
+      window.addEventListener("message", onMessage);
+    }
+    signinBtn.addEventListener("click", signIn);
+    signoutBtn.addEventListener("click", () => {
       localStorage.removeItem(TOKEN_KEY);
-      showTokenScreen();
+      showSignin();
     });
 
     // ── live preview ──────────────────────────────────────────────────────────
@@ -469,7 +477,7 @@
       });
       if (res.status === 401) {
         localStorage.removeItem(TOKEN_KEY);
-        throw new Error("Token rejected — please re-enter it.");
+        throw new Error("Session expired — please sign in again.");
       }
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
@@ -561,7 +569,7 @@ ${indentHtml(bodyHtml.trim(), 6)}
 
     postForm.addEventListener("submit", async (e) => {
       e.preventDefault();
-      if (!getToken()) { showTokenScreen(); return; }
+      if (!getToken()) { showSignin(); return; }
 
       const title   = titleEl.value.trim();
       const date    = dateEl.value;
@@ -625,7 +633,7 @@ ${indentHtml(bodyHtml.trim(), 6)}
         renderPreview();
       } catch (err) {
         setStatus("err", "Error: " + esc(err.message));
-        if (err.message.includes("re-enter")) showTokenScreen();
+        if (err.message.includes("sign in")) showSignin();
       } finally {
         publishBtn.disabled = false;
         publishBtn.textContent = "Publish";

@@ -1,0 +1,11 @@
+name = "oneml-blog-auth"
+main = "worker.js"
+compatibility_date = "2024-11-01"
+
+[vars]
+# Filled in during setup — see README.md
+GITHUB_CLIENT_ID = "REPLACE_WITH_OAUTH_APP_CLIENT_ID"
+ALLOWED_ORIGIN   = "https://kf-rahman.github.io"
+
+# GITHUB_CLIENT_SECRET is a secret, not a var:
+#   npx wrangler secret put GITHUB_CLIENT_SECRET

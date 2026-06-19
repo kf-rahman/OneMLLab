@@ -6,14 +6,16 @@ Markdown-sourced; HTML is generated from it.
 ## Two ways to write a post
 
 ### 1. From the browser (the no-friction path)
-Open **`/admin.html`** on the live site (or locally), write in the split-pane editor,
-and hit **Publish**. The page builds the post HTML in the browser and commits everything
-— the `.md` source, the generated `.html`, any images, and an updated `blog/index.json` —
-in a single atomic commit via the GitHub Git Data API. The post is live within seconds;
-no waiting on CI.
+Open **`/admin.html`** on the live site, click **Sign in with GitHub**, write in the
+split-pane editor, and hit **Publish**. The page builds the post HTML in the browser and
+commits everything — the `.md` source, the generated `.html`, any images, and an updated
+`blog/index.json` — in a single atomic commit via the GitHub Git Data API. The post is
+live within seconds; no waiting on CI.
 
-- First use asks for a GitHub token (scope: `repo`), stored only in this browser's
-  localStorage.
+- **Auth:** "Sign in with GitHub" (OAuth). The token swap is handled by a tiny Cloudflare
+  Worker in `auth-worker/` (the project's only backend — set up once, see its README).
+  `admin.html`'s `AUTH_BASE` constant must point at the deployed worker URL. The resulting
+  access token lives only in this browser's localStorage.
 - Images: click **🖼 Image**, drag-drop onto the editor, or paste a screenshot. They're
   held locally and uploaded as part of the Publish commit. Referenced as
   `uploads/<id>-<name>` and stored at `blog/uploads/`.
