@@ -19,6 +19,10 @@ async function loadBlogPosts() {
     return;
   }
 
+  // "Last updated" byline = date of the most recent post (data is newest-first).
+  const updated = document.getElementById("last-updated");
+  if (updated) updated.textContent = "Updated " + formatDate(data[0].post_date);
+
   list.innerHTML = data
     .map(
       (p) => `
