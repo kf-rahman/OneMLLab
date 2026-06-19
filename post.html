@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Loading… — Kazi Rahman</title>
+  <link rel="stylesheet" href="assets/styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/markdown-it@14.1.0/dist/markdown-it.min.js"></script>
+  <script src="assets/config.js"></script>
+</head>
+<body id="top">
+  <header>
+    <div class="nav">
+      <a class="brand" href="index.html">Kazi Rahman</a>
+      <nav class="navlinks" aria-label="Primary navigation">
+        <a href="index.html#about">About</a>
+        <a href="index.html#blog">Blog</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <h1 id="post-title">Loading…</h1>
+    <div class="byline" id="post-byline"></div>
+    <div class="post-content" id="post-content"></div>
+
+    <div class="bottom-controls">
+      <a href="index.html#blog">← Back to blog</a>
+      <a href="#top">Back to top ↑</a>
+    </div>
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+      <div>Kazi Rahman © 2026</div>
+      <div class="footer-links">
+        <a href="#">Terms of Service</a>
+        <a href="#">Privacy Notice</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const sb = supabase.createClient(window.SUPA.url, window.SUPA.anonKey);
+    const md = window.markdownit({ html: false, linkify: true, typographer: true });
+
+    function esc(s) {
+      return String(s).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
+    }
+    function fmt(iso) {
+      return new Date(iso + "T00:00:00").toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+    }
+
+    (async function load() {
+      const slug = new URLSearchParams(location.search).get("slug");
+      const titleEl = document.getElementById("post-title");
+      if (!slug) { titleEl.textContent = "Post not found"; return; }
+
+      const { data, error } = await sb.from("posts").select("*").eq("slug", slug).single();
+      if (error || !data) {
+        titleEl.textContent = "Post not found";
+        document.getElementById("post-content").innerHTML =
+          '<p><a href="index.html#blog">← Back to blog</a></p>';
+        return;
+      }
+
+      document.title = data.title + " — Kazi Rahman";
+      titleEl.textContent = data.title;
+      document.getElementById("post-byline").innerHTML =
+        `<span>By ${esc(data.author || "Kazi Rahman")}</span><span class="dot"></span><span>${fmt(data.post_date)}</span>`;
+      document.getElementById("post-content").innerHTML = md.render(data.body || "");
+    })();
+  </script>
+</body>
+</html>

@@ -5,9 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Write — Kazi Rahman</title>
   <link rel="stylesheet" href="assets/styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/markdown-it@14.1.0/dist/markdown-it.min.js"></script>
+  <script src="assets/config.js"></script>
   <style>
-    /* The editor wants more room than the reading column. */
     body.editor-open main{ max-width: 1180px; }
 
     .field { margin-bottom: 18px; }
@@ -21,22 +22,14 @@
       margin-bottom: 6px;
     }
     label .hint {
-      font-weight: 400;
-      text-transform: none;
-      letter-spacing: 0;
-      font-size: 12px;
-      color: rgba(31,36,34,0.55);
+      font-weight: 400; text-transform: none; letter-spacing: 0;
+      font-size: 12px; color: rgba(31,36,34,0.55);
     }
     input, textarea {
-      width: 100%;
-      padding: 10px 12px;
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      background: #fff;
-      color: var(--text);
-      font-family: inherit;
-      font-size: 15px;
-      outline: none;
+      width: 100%; padding: 10px 12px;
+      border: 1px solid var(--border); border-radius: 10px;
+      background: #fff; color: var(--text);
+      font-family: inherit; font-size: 15px; outline: none;
       transition: border-color 0.15s;
     }
     input:focus, textarea:focus { border-color: var(--accent); }
@@ -45,123 +38,86 @@
     .row .field { flex: 1; min-width: 200px; }
     .row .field.short { flex: 0 0 160px; }
 
-    /* ── toolbar ───────────────────────────────────────────── */
+    /* toolbar */
     .toolbar{
-      display: flex;
-      gap: 4px;
-      flex-wrap: wrap;
-      align-items: center;
-      padding: 6px;
-      border: 1px solid var(--border);
-      border-bottom: 0;
-      border-radius: 10px 10px 0 0;
-      background: var(--code-bg);
+      display: flex; gap: 4px; flex-wrap: wrap; align-items: center;
+      padding: 6px; border: 1px solid var(--border); border-bottom: 0;
+      border-radius: 10px 10px 0 0; background: var(--code-bg);
     }
     .toolbar button{
-      border: 1px solid transparent;
-      background: none;
-      color: var(--text);
-      font-size: 14px;
-      padding: 5px 9px;
-      border-radius: 7px;
-      cursor: pointer;
-      line-height: 1;
-      font-family: inherit;
+      border: 1px solid transparent; background: none; color: var(--text);
+      font-size: 14px; padding: 5px 9px; border-radius: 7px; cursor: pointer;
+      line-height: 1; font-family: inherit;
     }
     .toolbar button:hover{ background: rgba(47,93,80,0.10); color: var(--primary); }
     .toolbar .spacer{ flex: 1; }
-    .toolbar .preview-toggle{
-      font-size: 12px;
-      color: rgba(31,36,34,0.6);
-    }
 
-    /* ── editor split ──────────────────────────────────────── */
+    /* editor split */
     .editor-split{
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 0;
-      border: 1px solid var(--border);
-      border-radius: 0 0 10px 10px;
-      overflow: hidden;
-      min-height: 460px;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 0;
+      border: 1px solid var(--border); border-radius: 0 0 10px 10px;
+      overflow: hidden; min-height: 460px;
     }
     .editor-split.is-dragover{ border-color: var(--primary); }
     #body{
-      border: 0;
-      border-radius: 0;
-      border-right: 1px solid var(--border);
+      border: 0; border-radius: 0; border-right: 1px solid var(--border);
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      font-size: 14px;
-      line-height: 1.7;
-      resize: none;
-      min-height: 460px;
+      font-size: 14px; line-height: 1.7; resize: none; min-height: 460px;
     }
-    #preview{
-      padding: 14px 20px;
-      overflow-y: auto;
-      max-height: 70vh;
-      background: var(--bg);
-    }
+    #preview{ padding: 14px 20px; overflow-y: auto; max-height: 70vh; background: var(--bg); }
     #preview .placeholder{ color: rgba(31,36,34,0.4); }
-
     body.preview-hidden .editor-split{ grid-template-columns: 1fr; }
     body.preview-hidden #body{ border-right: 0; }
     body.preview-hidden #preview{ display: none; }
-
     @media (max-width: 760px){
       .editor-split{ grid-template-columns: 1fr; }
       #body{ border-right: 0; border-bottom: 1px solid var(--border); }
       #preview{ max-height: 50vh; }
     }
 
-    /* ── actions ───────────────────────────────────────────── */
-    .actions {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      flex-wrap: wrap;
-      margin-top: 18px;
-    }
+    .actions { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; margin-top: 18px; }
     button.primary {
-      padding: 11px 28px;
-      background: var(--primary);
-      color: #fff;
-      border: none;
-      border-radius: 10px;
-      font-size: 15px;
-      font-weight: 600;
-      cursor: pointer;
+      padding: 11px 28px; background: var(--primary); color: #fff; border: none;
+      border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer;
       transition: opacity 0.15s;
     }
     button.primary:disabled { opacity: 0.45; cursor: not-allowed; }
     button.primary:hover:not(:disabled) { opacity: 0.85; }
+    button.ghost {
+      padding: 11px 20px; background: none; color: var(--primary);
+      border: 1px solid var(--border); border-radius: 10px; font-size: 15px;
+      cursor: pointer; font-family: inherit;
+    }
+    button.ghost:hover { background: rgba(47,93,80,0.07); }
     #status { font-size: 14px; line-height: 1.5; }
     #status.ok { color: var(--primary); }
     #status.err { color: #b94040; }
     #status.busy { color: rgba(31,36,34,0.7); }
     .draft-note{ font-size: 12px; color: rgba(31,36,34,0.45); }
 
-    /* ── sign in ───────────────────────────────────────────── */
-    #signin-screen { max-width: 540px; }
-    #signin-screen p { color: rgba(31,36,34,0.75); font-size: 15px; }
-    .token-row { display: flex; gap: 10px; margin-top: 6px; }
-    .token-row input { flex: 1; font-family: ui-monospace, monospace; font-size: 13px; }
-    .token-row button { white-space: nowrap; }
-    .token-note { font-size: 12px; color: rgba(31,36,34,0.5); margin-top: 8px; }
-
+    /* login */
+    #login-screen { max-width: 380px; }
+    #login-screen p { color: rgba(31,36,34,0.75); font-size: 15px; }
+    #login-error { color: #b94040; font-size: 14px; min-height: 18px; }
     #editor-screen { display: none; }
 
-    .token-edit {
-      font-size: 12px;
-      color: rgba(31,36,34,0.45);
-      cursor: pointer;
-      text-decoration: underline;
-      background: none;
-      border: none;
-      padding: 0;
+    .link-btn {
+      font-size: 12px; color: rgba(31,36,34,0.45); cursor: pointer;
+      text-decoration: underline; background: none; border: none; padding: 0;
       font-family: inherit;
     }
-    .token-edit:hover { color: var(--primary); }
+    .link-btn:hover { color: var(--primary); }
+
+    /* manage list */
+    .manage { margin-top: 40px; border-top: 1px solid var(--border); padding-top: 18px; }
+    .manage h2 { font-size: 16px; }
+    .manage-item {
+      display: flex; align-items: baseline; justify-content: space-between;
+      gap: 12px; padding: 10px 2px; border-bottom: 1px solid var(--border); flex-wrap: wrap;
+    }
+    .manage-item .t { font-weight: 600; }
+    .manage-item .d { font-size: 13px; color: rgba(31,36,34,0.6); margin-left: 8px; }
+    .manage-item .acts { display: flex; gap: 14px; }
   </style>
 </head>
 <body>
@@ -177,19 +133,32 @@
 
   <main>
 
-    <!-- Step 1: sign in -->
-    <div id="signin-screen">
+    <!-- Step 1: login -->
+    <div id="login-screen">
       <h1>Admin</h1>
-      <p>Sign in with GitHub to write and publish.</p>
-      <div class="token-row">
-        <button class="primary" id="signin-btn">Sign in with GitHub</button>
-      </div>
-      <p class="token-note" id="signin-error"></p>
+      <p>Log in to write and publish.</p>
+      <form id="login-form">
+        <div class="field">
+          <label for="email">Email</label>
+          <input id="email" type="email" autocomplete="username" required />
+        </div>
+        <div class="field">
+          <label for="password">Password</label>
+          <input id="password" type="password" autocomplete="current-password" required />
+        </div>
+        <div class="actions">
+          <button type="submit" class="primary" id="login-btn">Log in</button>
+          <span id="login-error"></span>
+        </div>
+      </form>
     </div>
 
     <!-- Step 2: writing studio -->
     <div id="editor-screen">
-      <h1 style="margin-bottom:18px">New entry <button class="token-edit" id="signout-btn">sign out</button></h1>
+      <h1 style="margin-bottom:18px">
+        <span id="editor-heading">New entry</span>
+        <button class="link-btn" id="logout-btn">log out</button>
+      </h1>
 
       <form id="post-form">
         <div class="row">
@@ -221,7 +190,7 @@
             <button type="button" data-md="code" title="Code block">&lt;/&gt;</button>
             <button type="button" id="image-btn" title="Add image">🖼 Image</button>
             <span class="spacer"></span>
-            <label class="preview-toggle" style="text-transform:none;letter-spacing:0;margin:0;display:flex;align-items:center;gap:6px;cursor:pointer">
+            <label style="text-transform:none;letter-spacing:0;margin:0;display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;color:rgba(31,36,34,0.6)">
               <input type="checkbox" id="preview-checkbox" checked style="width:auto" /> Preview
             </label>
           </div>
@@ -234,11 +203,17 @@
 
         <div class="actions">
           <button type="submit" class="primary" id="publish-btn">Publish</button>
+          <button type="button" class="ghost" id="new-btn" style="display:none">New entry</button>
           <span id="status"></span>
           <span class="spacer" style="flex:1"></span>
           <span class="draft-note" id="draft-note"></span>
         </div>
       </form>
+
+      <div class="manage">
+        <h2>Your posts</h2>
+        <div id="manage-list"><div class="meta">Loading…</div></div>
+      </div>
     </div>
 
   </main>
@@ -254,146 +229,108 @@
   </footer>
 
   <script>
-    // ── config ───────────────────────────────────────────────────────────────
-    // Set this to your deployed auth worker URL (no trailing slash).
-    // See auth-worker/README.md.
-    const AUTH_BASE  = "REPLACE_WITH_WORKER_URL";
-
-    const REPO       = "kf-rahman/OneMLLab";
-    const BRANCH     = "main";
-    const TOKEN_KEY  = "gh_token_onemllab";
-    const DRAFT_KEY  = "draft_onemllab";
-    const API        = `https://api.github.com/repos/${REPO}`;
-
+    const sb = supabase.createClient(window.SUPA.url, window.SUPA.anonKey);
     const md = window.markdownit({ html: false, linkify: true, typographer: true });
+    const BUCKET = "post-images";
+    const DRAFT_KEY = "draft_onemllab";
 
-    // ── elements ───────────────────────────────────────────────────────────
-    const signinScreen  = document.getElementById("signin-screen");
-    const editorScreen  = document.getElementById("editor-screen");
-    const signinBtn     = document.getElementById("signin-btn");
-    const signinError   = document.getElementById("signin-error");
-    const signoutBtn    = document.getElementById("signout-btn");
-    const postForm      = document.getElementById("post-form");
-    const publishBtn    = document.getElementById("publish-btn");
-    const statusEl      = document.getElementById("status");
-    const draftNote     = document.getElementById("draft-note");
-    const titleEl       = document.getElementById("title");
-    const dateEl        = document.getElementById("date");
-    const excerptEl     = document.getElementById("excerpt");
-    const bodyEl        = document.getElementById("body");
-    const previewEl     = document.getElementById("preview");
-    const split         = document.getElementById("editor-split");
-    const imageInput    = document.getElementById("image-input");
+    // ── elements ──────────────────────────────────────────────────────────────
+    const loginScreen  = document.getElementById("login-screen");
+    const editorScreen = document.getElementById("editor-screen");
+    const loginForm    = document.getElementById("login-form");
+    const loginBtn     = document.getElementById("login-btn");
+    const loginError   = document.getElementById("login-error");
+    const logoutBtn    = document.getElementById("logout-btn");
+    const postForm     = document.getElementById("post-form");
+    const publishBtn   = document.getElementById("publish-btn");
+    const newBtn       = document.getElementById("new-btn");
+    const statusEl     = document.getElementById("status");
+    const draftNote    = document.getElementById("draft-note");
+    const editorHeading= document.getElementById("editor-heading");
+    const titleEl      = document.getElementById("title");
+    const dateEl       = document.getElementById("date");
+    const excerptEl    = document.getElementById("excerpt");
+    const bodyEl       = document.getElementById("body");
+    const previewEl    = document.getElementById("preview");
+    const split        = document.getElementById("editor-split");
+    const imageInput   = document.getElementById("image-input");
+    const manageList   = document.getElementById("manage-list");
 
-    // pending images: markdown path  ->  { file, url }
-    const pendingImages = new Map();
+    let editingId = null;   // null = new post, else id of post being edited
 
-    // ── init ────────────────────────────────────────────────────────────────
-    dateEl.value = new Date().toISOString().slice(0, 10);
     document.body.classList.add("editor-open");
+    function today() { return new Date().toISOString().slice(0, 10); }
+    dateEl.value = today();
 
-    function getToken() { return localStorage.getItem(TOKEN_KEY) || ""; }
-    function showEditor() {
-      signinScreen.style.display = "none";
-      editorScreen.style.display = "block";
-      renderPreview();
-    }
-    function showSignin() {
-      signinScreen.style.display = "block";
-      editorScreen.style.display = "none";
-    }
-    if (getToken()) showEditor();
+    // ── auth ────────────────────────────────────────────────────────────────
+    function showEditor() { loginScreen.style.display = "none"; editorScreen.style.display = "block"; renderPreview(); loadManageList(); }
+    function showLogin()  { loginScreen.style.display = "block"; editorScreen.style.display = "none"; }
 
-    // ── sign in with GitHub (OAuth via the auth worker) ─────────────────────────
-    function signIn() {
-      signinError.textContent = "";
-      const popup = window.open(`${AUTH_BASE}/auth`, "github-signin", "width=720,height=760");
-      if (!popup) { signinError.textContent = "Popup blocked — allow popups for this site and retry."; return; }
+    sb.auth.getSession().then(({ data }) => { if (data.session) showEditor(); else showLogin(); });
+    sb.auth.onAuthStateChange((_event, session) => { if (session) showEditor(); else showLogin(); });
 
-      function onMessage(e) {
-        if (e.origin !== new URL(AUTH_BASE).origin) return;       // only trust the worker
-        const data = e.data;
-        if (!data || data.source !== "oneml-oauth") return;
-        window.removeEventListener("message", onMessage);
-        if (data.token) {
-          localStorage.setItem(TOKEN_KEY, data.token);
-          showEditor();
-        } else {
-          signinError.textContent = "Sign-in failed: " + (data.error || "unknown error");
-        }
-      }
-      window.addEventListener("message", onMessage);
-    }
-    signinBtn.addEventListener("click", signIn);
-    signoutBtn.addEventListener("click", () => {
-      localStorage.removeItem(TOKEN_KEY);
-      showSignin();
+    loginForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      loginError.textContent = "";
+      loginBtn.disabled = true; loginBtn.textContent = "Logging in…";
+      const { error } = await sb.auth.signInWithPassword({
+        email: document.getElementById("email").value.trim(),
+        password: document.getElementById("password").value,
+      });
+      loginBtn.disabled = false; loginBtn.textContent = "Log in";
+      if (error) loginError.textContent = error.message;
     });
+    logoutBtn.addEventListener("click", () => sb.auth.signOut());
 
     // ── live preview ──────────────────────────────────────────────────────────
     function renderPreview() {
       const text = bodyEl.value;
-      if (!text.trim()) {
-        previewEl.innerHTML = '<div class="placeholder">Preview appears here as you write.</div>';
-        return;
-      }
-      previewEl.innerHTML = '<div class="post-content">' + md.render(text) + "</div>";
-      // swap in object URLs for not-yet-uploaded images
-      previewEl.querySelectorAll("img").forEach((img) => {
-        const path = img.getAttribute("src") || "";
-        if (pendingImages.has(path)) img.src = pendingImages.get(path).url;
-      });
+      previewEl.innerHTML = text.trim()
+        ? '<div class="post-content">' + md.render(text) + "</div>"
+        : '<div class="placeholder">Preview appears here as you write.</div>';
     }
-
     document.getElementById("preview-checkbox").addEventListener("change", (e) => {
       document.body.classList.toggle("preview-hidden", !e.target.checked);
     });
 
-    // ── draft autosave ──────────────────────────────────────────────────────
+    // ── draft autosave (only for new, unsaved posts) ────────────────────────────
     let draftTimer;
     function saveDraft() {
+      if (editingId) return;
       clearTimeout(draftTimer);
       draftTimer = setTimeout(() => {
         localStorage.setItem(DRAFT_KEY, JSON.stringify({
-          title: titleEl.value, date: dateEl.value,
-          excerpt: excerptEl.value, body: bodyEl.value,
+          title: titleEl.value, date: dateEl.value, excerpt: excerptEl.value, body: bodyEl.value,
         }));
-        const t = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-        draftNote.textContent = "Draft saved " + t;
+        draftNote.textContent = "Draft saved " + new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
       }, 400);
     }
     function loadDraft() {
       try {
         const d = JSON.parse(localStorage.getItem(DRAFT_KEY) || "null");
         if (!d) return;
-        if (d.title) titleEl.value = d.title;
-        if (d.date) dateEl.value = d.date;
-        if (d.excerpt) excerptEl.value = d.excerpt;
-        if (d.body) bodyEl.value = d.body;
+        titleEl.value = d.title || ""; dateEl.value = d.date || today();
+        excerptEl.value = d.excerpt || ""; bodyEl.value = d.body || "";
       } catch {}
     }
     loadDraft();
-
     [titleEl, dateEl, excerptEl, bodyEl].forEach((el) =>
       el.addEventListener("input", () => { saveDraft(); if (el === bodyEl) renderPreview(); })
     );
     renderPreview();
 
-    // ── toolbar / markdown helpers ────────────────────────────────────────────
+    // ── toolbar / markdown helpers ──────────────────────────────────────────────
     function surround(before, after = before, placeholder = "text") {
       const s = bodyEl.selectionStart, e = bodyEl.selectionEnd;
       const sel = bodyEl.value.slice(s, e) || placeholder;
-      const out = before + sel + after;
-      bodyEl.setRangeText(out, s, e, "select");
-      bodyEl.focus();
-      renderPreview(); saveDraft();
+      bodyEl.setRangeText(before + sel + after, s, e, "select");
+      bodyEl.focus(); renderPreview(); saveDraft();
     }
     function linePrefix(prefix) {
       const s = bodyEl.selectionStart;
       const lineStart = bodyEl.value.lastIndexOf("\n", s - 1) + 1;
       bodyEl.setRangeText(prefix, lineStart, lineStart, "end");
-      bodyEl.focus();
-      renderPreview(); saveDraft();
+      bodyEl.focus(); renderPreview(); saveDraft();
     }
     const mdActions = {
       bold:  () => surround("**"),
@@ -417,228 +354,144 @@
       if (k === "k") { e.preventDefault(); mdActions.link(); }
     });
 
-    // ── images: pick / drop / paste ────────────────────────────────────────────
-    function slugifyName(name) {
+    // ── images: upload to Supabase storage, insert public URL ────────────────────
+    function safeName(name) {
       const dot = name.lastIndexOf(".");
       const base = (dot > 0 ? name.slice(0, dot) : name).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
       const ext = (dot > 0 ? name.slice(dot + 1) : "png").toLowerCase().replace(/[^a-z0-9]/g, "") || "png";
       return `${(base || "image").slice(0, 40)}.${ext}`;
     }
-    function addImage(file) {
-      if (!file || !file.type.startsWith("image/")) return;
-      const unique = Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
-      const path = `uploads/${unique}-${slugifyName(file.name || "pasted.png")}`;
-      const url = URL.createObjectURL(file);
-      pendingImages.set(path, { file, url });
-      const alt = (file.name || "image").replace(/\.[^.]+$/, "");
-      surroundInsert(`\n![${alt}](${path})\n`);
-    }
-    function surroundInsert(text) {
+    function insertAtCursor(text) {
       const s = bodyEl.selectionStart, e = bodyEl.selectionEnd;
       bodyEl.setRangeText(text, s, e, "end");
-      bodyEl.focus();
-      renderPreview(); saveDraft();
+      bodyEl.focus(); renderPreview(); saveDraft();
+    }
+    async function uploadImage(file) {
+      if (!file || !file.type.startsWith("image/")) return;
+      const placeholder = `\n![uploading ${file.name || "image"}…]()\n`;
+      insertAtCursor(placeholder);
+      setStatus("busy", "Uploading image…");
+      try {
+        const path = `${Date.now()}-${Math.random().toString(36).slice(2, 6)}-${safeName(file.name || "pasted.png")}`;
+        const { error } = await sb.storage.from(BUCKET).upload(path, file, { contentType: file.type });
+        if (error) throw error;
+        const { data } = sb.storage.from(BUCKET).getPublicUrl(path);
+        const alt = (file.name || "image").replace(/\.[^.]+$/, "");
+        bodyEl.value = bodyEl.value.replace(placeholder, `\n![${alt}](${data.publicUrl})\n`);
+        renderPreview(); saveDraft(); setStatus("", "");
+      } catch (err) {
+        bodyEl.value = bodyEl.value.replace(placeholder, "");
+        renderPreview();
+        setStatus("err", "Image upload failed: " + (err.message || err));
+      }
     }
     document.getElementById("image-btn").addEventListener("click", () => imageInput.click());
-    imageInput.addEventListener("change", () => {
-      [...imageInput.files].forEach(addImage);
-      imageInput.value = "";
-    });
+    imageInput.addEventListener("change", () => { [...imageInput.files].forEach(uploadImage); imageInput.value = ""; });
     bodyEl.addEventListener("paste", (e) => {
-      const items = [...(e.clipboardData?.items || [])].filter((i) => i.type.startsWith("image/"));
-      if (!items.length) return;
-      e.preventDefault();
-      items.forEach((i) => addImage(i.getAsFile()));
+      const imgs = [...(e.clipboardData?.items || [])].filter((i) => i.type.startsWith("image/"));
+      if (!imgs.length) return;
+      e.preventDefault(); imgs.forEach((i) => uploadImage(i.getAsFile()));
     });
-    ["dragenter", "dragover"].forEach((ev) =>
-      split.addEventListener(ev, (e) => { e.preventDefault(); split.classList.add("is-dragover"); })
-    );
-    ["dragleave", "drop"].forEach((ev) =>
-      split.addEventListener(ev, (e) => { e.preventDefault(); split.classList.remove("is-dragover"); })
-    );
-    split.addEventListener("drop", (e) => {
-      [...(e.dataTransfer?.files || [])].forEach(addImage);
-    });
+    ["dragenter", "dragover"].forEach((ev) => split.addEventListener(ev, (e) => { e.preventDefault(); split.classList.add("is-dragover"); }));
+    ["dragleave", "drop"].forEach((ev) => split.addEventListener(ev, (e) => { e.preventDefault(); split.classList.remove("is-dragover"); }));
+    split.addEventListener("drop", (e) => { [...(e.dataTransfer?.files || [])].forEach(uploadImage); });
 
-    // ── publish (atomic multi-file commit via Git Data API) ──────────────────────
-    function toSlug(title) {
-      return title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
-    }
+    // ── publish / edit / delete ─────────────────────────────────────────────────
+    function toSlug(title) { return title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""); }
     function setStatus(cls, html) { statusEl.className = cls; statusEl.innerHTML = html; }
 
-    async function gh(path, opts = {}) {
-      const res = await fetch(API + path, {
-        ...opts,
-        headers: {
-          Authorization: `token ${getToken()}`,
-          Accept: "application/vnd.github+json",
-          ...(opts.headers || {}),
-        },
-      });
-      if (res.status === 401) {
-        localStorage.removeItem(TOKEN_KEY);
-        throw new Error("Session expired — please sign in again.");
-      }
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err.message || `GitHub API error ${res.status}`);
-      }
-      return res.json();
+    function resetForm() {
+      editingId = null;
+      postForm.reset();
+      dateEl.value = today();
+      editorHeading.textContent = "New entry";
+      publishBtn.textContent = "Publish";
+      newBtn.style.display = "none";
+      draftNote.textContent = "";
+      renderPreview();
     }
-
-    function fileToBase64(file) {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result.split(",")[1]);
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-      });
-    }
-
-    // Mirror of scripts/build-blog.mjs renderPostPage so published HTML matches the Node build.
-    function indentHtml(html, spaces) {
-      const pad = " ".repeat(spaces);
-      return html.split("\n").map((l) => pad + l).join("\n");
-    }
-    function formatDisplayDate(iso) {
-      return new Date(iso + "T00:00:00").toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
-    }
-    function esc(v) {
-      return String(v).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#039;");
-    }
-    function renderPostPage({ title, author, date, bodyHtml }) {
-      return `<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>${esc(title)}</title>
-  <link rel="stylesheet" href="../assets/styles.css">
-</head>
-<body id="top">
-  <header>
-    <div class="nav">
-      <a class="brand" href="../index.html">Kazi Rahman</a>
-      <nav class="navlinks" aria-label="Primary navigation">
-        <a href="../index.html#about">About</a>
-        <a href="../index.html#blog">Blog</a>
-      </nav>
-    </div>
-  </header>
-
-  <main>
-    <h1>${esc(title)}</h1>
-    <div class="byline">
-      <span>By ${esc(author)}</span>
-      <span class="dot"></span>
-      <span>${esc(date)}</span>
-    </div>
-
-    <div class="post-content">
-${indentHtml(bodyHtml.trim(), 6)}
-    </div>
-
-    <div class="bottom-controls">
-      <a href="../index.html#blog">← Back to blog</a>
-      <a href="#top">Back to top ↑</a>
-    </div>
-  </main>
-
-  <footer>
-    <div class="footer-inner">
-      <div>Kazi Rahman © 2026</div>
-      <div class="footer-links">
-        <a href="#">Terms of Service</a>
-        <a href="#">Privacy Notice</a>
-      </div>
-    </div>
-  </footer>
-</body>
-</html>
-`;
-    }
-
-    async function getCurrentIndex() {
-      try {
-        const data = await gh(`/contents/blog/index.json?ref=${BRANCH}&t=${Date.now()}`);
-        return JSON.parse(decodeURIComponent(escape(atob(data.content.replace(/\s/g, "")))));
-      } catch {
-        return [];
-      }
-    }
+    newBtn.addEventListener("click", () => { localStorage.removeItem(DRAFT_KEY); resetForm(); setStatus("", ""); window.scrollTo({ top: 0, behavior: "smooth" }); });
 
     postForm.addEventListener("submit", async (e) => {
       e.preventDefault();
-      if (!getToken()) { showSignin(); return; }
-
-      const title   = titleEl.value.trim();
-      const date    = dateEl.value;
+      const title = titleEl.value.trim();
+      const post_date = dateEl.value;
       const excerpt = excerptEl.value.trim();
-      const body    = bodyEl.value;
-      if (!title || !date) return;
+      const body = bodyEl.value;
+      if (!title || !post_date) return;
 
-      const slug = toSlug(title);
-      publishBtn.disabled = true;
-      publishBtn.textContent = "Publishing…";
-
+      publishBtn.disabled = true; publishBtn.textContent = editingId ? "Saving…" : "Publishing…";
+      setStatus("busy", "Saving…");
       try {
-        // 1. assemble files
-        setStatus("busy", "Building post…");
-        const mdContent = ["---", `title: ${title}`, `date: ${date}`, `slug: ${slug}`, `excerpt: ${excerpt}`, "---", "", body, ""].join("\n");
-        const htmlContent = renderPostPage({
-          title, author: "Kazi Rahman", date: formatDisplayDate(date), bodyHtml: md.render(body.trim()),
-        });
-
-        // only keep images actually referenced in the body
-        const used = [...pendingImages.entries()].filter(([p]) => body.includes(p));
-
-        const index = await getCurrentIndex();
-        const entry = { title, date, excerpt, url: `blog/${slug}.html` };
-        const filtered = index.filter((p) => p.url !== entry.url);
-        filtered.push(entry);
-        filtered.sort((a, b) => (b.date || "").localeCompare(a.date || ""));
-        const indexContent = JSON.stringify(filtered, null, 2) + "\n";
-
-        // 2. blobs
-        setStatus("busy", used.length ? `Uploading ${used.length} image(s)…` : "Committing…");
-        const tree = [];
-        async function blob(content, encoding) {
-          const r = await gh(`/git/blobs`, { method: "POST", body: JSON.stringify({ content, encoding }) });
-          return r.sha;
+        let slug, savedSlug;
+        if (editingId) {
+          const { data, error } = await sb.from("posts")
+            .update({ title, excerpt, body, post_date }).eq("id", editingId).select("slug").single();
+          if (error) throw error;
+          savedSlug = data.slug;
+        } else {
+          slug = toSlug(title) || "post";
+          // ensure unique slug
+          const { data: clash } = await sb.from("posts").select("id").eq("slug", slug).maybeSingle();
+          if (clash) slug = `${slug}-${Math.random().toString(36).slice(2, 6)}`;
+          const { data, error } = await sb.from("posts")
+            .insert({ slug, title, excerpt, body, post_date }).select("id,slug").single();
+          if (error) throw error;
+          editingId = data.id; savedSlug = data.slug;
         }
-        tree.push({ path: `blog/posts/${date}-${slug}.md`, mode: "100644", type: "blob", sha: await blob(btoa(unescape(encodeURIComponent(mdContent))), "base64") });
-        tree.push({ path: `blog/${slug}.html`,            mode: "100644", type: "blob", sha: await blob(btoa(unescape(encodeURIComponent(htmlContent))), "base64") });
-        tree.push({ path: `blog/index.json`,              mode: "100644", type: "blob", sha: await blob(btoa(unescape(encodeURIComponent(indexContent))), "base64") });
-        for (const [path, { file }] of used) {
-          tree.push({ path: `blog/${path}`, mode: "100644", type: "blob", sha: await blob(await fileToBase64(file), "base64") });
-        }
-
-        // 3. commit
-        setStatus("busy", "Committing…");
-        const ref = await gh(`/git/ref/heads/${BRANCH}`);
-        const baseSha = ref.object.sha;
-        const baseCommit = await gh(`/git/commits/${baseSha}`);
-        const newTree = await gh(`/git/trees`, { method: "POST", body: JSON.stringify({ base_tree: baseCommit.tree.sha, tree }) });
-        const commit = await gh(`/git/commits`, { method: "POST", body: JSON.stringify({ message: `Post: ${title}`, tree: newTree.sha, parents: [baseSha] }) });
-        await gh(`/git/refs/heads/${BRANCH}`, { method: "PATCH", body: JSON.stringify({ sha: commit.sha }) });
-
-        // 4. done
-        setStatus("ok", `Published! Live at <a href="blog/${slug}.html" target="_blank">blog/${slug}.html</a> in a few seconds.`);
         localStorage.removeItem(DRAFT_KEY);
-        pendingImages.forEach(({ url }) => URL.revokeObjectURL(url));
-        pendingImages.clear();
-        postForm.reset();
-        dateEl.value = new Date().toISOString().slice(0, 10);
-        draftNote.textContent = "";
-        renderPreview();
+        editorHeading.textContent = "Editing: " + title;
+        publishBtn.textContent = "Save changes";
+        newBtn.style.display = "inline-block";
+        setStatus("ok", `Published! View it at <a href="post.html?slug=${encodeURIComponent(savedSlug)}" target="_blank">your post</a>.`);
+        loadManageList();
       } catch (err) {
-        setStatus("err", "Error: " + esc(err.message));
-        if (err.message.includes("sign in")) showSignin();
+        setStatus("err", "Error: " + (err.message || err));
       } finally {
         publishBtn.disabled = false;
-        publishBtn.textContent = "Publish";
       }
     });
+
+    async function loadManageList() {
+      const { data, error } = await sb.from("posts").select("id,slug,title,post_date").order("post_date", { ascending: false });
+      if (error) { manageList.innerHTML = `<div class="meta">Could not load: ${error.message}</div>`; return; }
+      if (!data.length) { manageList.innerHTML = `<div class="meta">No posts yet.</div>`; return; }
+      manageList.innerHTML = data.map((p) => `
+        <div class="manage-item" data-id="${p.id}">
+          <div><span class="t">${escapeHtml(p.title)}</span><span class="d">${p.post_date}</span></div>
+          <div class="acts">
+            <button class="link-btn" data-act="edit" data-id="${p.id}">edit</button>
+            <button class="link-btn" data-act="delete" data-id="${p.id}">delete</button>
+          </div>
+        </div>`).join("");
+    }
+    manageList.addEventListener("click", async (e) => {
+      const btn = e.target.closest("button[data-act]");
+      if (!btn) return;
+      const id = btn.dataset.id;
+      if (btn.dataset.act === "edit") {
+        const { data, error } = await sb.from("posts").select("*").eq("id", id).single();
+        if (error) { setStatus("err", error.message); return; }
+        editingId = data.id;
+        titleEl.value = data.title; dateEl.value = data.post_date;
+        excerptEl.value = data.excerpt || ""; bodyEl.value = data.body || "";
+        editorHeading.textContent = "Editing: " + data.title;
+        publishBtn.textContent = "Save changes";
+        newBtn.style.display = "inline-block";
+        renderPreview(); setStatus("", "");
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      } else if (btn.dataset.act === "delete") {
+        if (!confirm("Delete this post? This cannot be undone.")) return;
+        const { error } = await sb.from("posts").delete().eq("id", id);
+        if (error) { setStatus("err", error.message); return; }
+        if (editingId === id) resetForm();
+        loadManageList();
+      }
+    });
+
+    function escapeHtml(s) {
+      return String(s).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#039;");
+    }
   </script>
 </body>
 </html>

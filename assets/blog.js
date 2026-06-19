@@ -1,43 +1,36 @@
+// Loads the blog list on the homepage from Supabase.
+const sb = supabase.createClient(window.SUPA.url, window.SUPA.anonKey);
+
 async function loadBlogPosts() {
   const list = document.getElementById("blog-list");
   if (!list) return;
 
-  try {
-    const res = await fetch("blog/index.json", { cache: "no-store" });
-    if (!res.ok) throw new Error("Could not load blog/index.json");
+  const { data, error } = await sb
+    .from("posts")
+    .select("slug,title,excerpt,post_date")
+    .order("post_date", { ascending: false });
 
-    const posts = await res.json();
-    posts.sort((a, b) => (b.date || "").localeCompare(a.date || ""));
+  if (error) {
+    list.innerHTML = `<li class="list-item"><div class="meta">Could not load posts: ${escapeHtml(error.message)}</div></li>`;
+    return;
+  }
+  if (!data.length) {
+    list.innerHTML = `<li class="list-item"><div class="meta">No posts yet.</div></li>`;
+    return;
+  }
 
-    if (!posts.length) {
-      list.innerHTML = `
-        <li class="list-item">
-          <div class="meta">No posts yet.</div>
-        </li>
-      `;
-      return;
-    }
-
-    list.innerHTML = posts.map(p => `
+  list.innerHTML = data
+    .map(
+      (p) => `
       <li class="list-item">
         <div class="title-row">
-          <a class="item-title" href="${escapeAttr(p.url)}">${escapeHtml(p.title || "Untitled")}</a>
-          <span class="meta">${formatDate(p.date)}</span>
+          <a class="item-title" href="post.html?slug=${encodeURIComponent(p.slug)}">${escapeHtml(p.title || "Untitled")}</a>
+          <span class="meta">${formatDate(p.post_date)}</span>
         </div>
         <div class="meta">${escapeHtml(p.excerpt || "")}</div>
-      </li>
-    `).join("");
-  } catch (err) {
-    list.innerHTML = `
-      <li class="list-item">
-        <div class="meta">
-          Could not load posts. Run a local server (VS Code Live Server or <code>python3 -m http.server</code>)
-          and ensure <code>blog/index.json</code> exists.
-        </div>
-      </li>
-    `;
-    console.error(err);
-  }
+      </li>`
+    )
+    .join("");
 }
 
 function formatDate(iso) {
@@ -53,15 +46,6 @@ function escapeHtml(s) {
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
-}
-
-function escapeAttr(s) {
-  return String(s)
-    .replaceAll("&", "%26")
-    .replaceAll('"', "%22")
-    .replaceAll("'", "%27")
-    .replaceAll("<", "%3C")
-    .replaceAll(">", "%3E");
 }
 
 loadBlogPosts();
