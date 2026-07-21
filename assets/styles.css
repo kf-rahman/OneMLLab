@@ -240,6 +240,43 @@ code{
   margin: 22px auto;
   border-radius: 14px;
   border: 1px solid var(--border);
+  cursor: zoom-in;
+}
+/* Size control via the image "title" in Markdown:
+   ![alt](url "wide")  ![alt](url "full")  ![alt](url "60%")  ![alt](url "500") */
+.post-content img.wide{
+  max-width: min(1000px, 92vw);
+  width: min(1000px, 92vw);
+  margin-left: 50%;
+  transform: translateX(-50%);
+}
+.post-content img.full{
+  max-width: min(1180px, 94vw);
+  width: min(1180px, 94vw);
+  margin-left: 50%;
+  transform: translateX(-50%);
+}
+
+/* Click-to-zoom overlay */
+.lightbox{
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(20, 26, 24, 0.86);
+  cursor: zoom-out;
+  overflow: auto;
+}
+.lightbox.open{ display: flex; }
+.lightbox img{
+  max-width: 100%;
+  max-height: 92vh;
+  height: auto;
+  border-radius: 10px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
 }
 
 .post-content blockquote{

@@ -234,6 +234,26 @@
   <script>
     const sb = supabase.createClient(window.SUPA.url, window.SUPA.anonKey);
     const md = window.markdownit({ html: false, linkify: true, typographer: true });
+
+    // Image sizing via the Markdown title (keep in sync with post.html):
+    //   ![alt](url "wide")  ![alt](url "full")  ![alt](url "60%")  ![alt](url "500")
+    const defaultImage = md.renderer.rules.image
+      || ((tokens, idx, opts, env, self) => self.renderToken(tokens, idx, opts));
+    md.renderer.rules.image = function (tokens, idx, opts, env, self) {
+      const token = tokens[idx];
+      const ti = token.attrIndex("title");
+      if (ti >= 0) {
+        const t = token.attrs[ti][1].trim().toLowerCase();
+        let handled = true;
+        if (t === "wide") token.attrPush(["class", "wide"]);
+        else if (t === "full") token.attrPush(["class", "full"]);
+        else if (/^\d+%$/.test(t)) token.attrPush(["style", `width:${t}`]);
+        else if (/^\d+$/.test(t)) token.attrPush(["style", `max-width:${t}px;width:100%`]);
+        else handled = false;
+        if (handled) token.attrs.splice(ti, 1);
+      }
+      return defaultImage(tokens, idx, opts, env, self);
+    };
     const BUCKET = "post-images";
     const DRAFT_KEY = "draft_onemllab";
 

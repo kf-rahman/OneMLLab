@@ -34,6 +34,8 @@
     </div>
   </main>
 
+  <div class="lightbox" id="lightbox"><img alt=""></div>
+
   <footer>
     <div class="footer-inner">
       <div>Kazi Rahman © 2026</div>
@@ -47,6 +49,26 @@
   <script>
     const sb = supabase.createClient(window.SUPA.url, window.SUPA.anonKey);
     const md = window.markdownit({ html: false, linkify: true, typographer: true });
+
+    // Image sizing via the Markdown title:
+    //   ![alt](url "wide")  ![alt](url "full")  ![alt](url "60%")  ![alt](url "500")
+    const defaultImage = md.renderer.rules.image
+      || ((tokens, idx, opts, env, self) => self.renderToken(tokens, idx, opts));
+    md.renderer.rules.image = function (tokens, idx, opts, env, self) {
+      const token = tokens[idx];
+      const ti = token.attrIndex("title");
+      if (ti >= 0) {
+        const t = token.attrs[ti][1].trim().toLowerCase();
+        let handled = true;
+        if (t === "wide") token.attrPush(["class", "wide"]);
+        else if (t === "full") token.attrPush(["class", "full"]);
+        else if (/^\d+%$/.test(t)) token.attrPush(["style", `width:${t}`]);
+        else if (/^\d+$/.test(t)) token.attrPush(["style", `max-width:${t}px;width:100%`]);
+        else handled = false;
+        if (handled) token.attrs.splice(ti, 1); // consume the directive so it isn't shown as a tooltip
+      }
+      return defaultImage(tokens, idx, opts, env, self);
+    };
 
     function esc(s) {
       return String(s).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
@@ -73,7 +95,23 @@
       document.getElementById("post-byline").innerHTML =
         `<span>By ${esc(data.author || "Kazi Rahman")}</span><span class="dot"></span><span>${fmt(data.post_date)}</span>`;
       document.getElementById("post-content").innerHTML = md.render(data.body || "");
+      wireLightbox();
     })();
+
+    // Click any post image to view it full-size.
+    function wireLightbox() {
+      const box = document.getElementById("lightbox");
+      const boxImg = box.querySelector("img");
+      document.querySelectorAll(".post-content img").forEach((img) => {
+        img.addEventListener("click", () => {
+          boxImg.src = img.currentSrc || img.src;
+          box.classList.add("open");
+        });
+      });
+      const close = () => { box.classList.remove("open"); boxImg.src = ""; };
+      box.addEventListener("click", close);
+      document.addEventListener("keydown", (e) => { if (e.key === "Escape") close(); });
+    }
   </script>
 </body>
 </html>
