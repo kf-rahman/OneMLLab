@@ -3,3 +3,6 @@ node_modules/
 
 # stray local file
 knn.py
+
+# local login notes — never commit
+login.txt
