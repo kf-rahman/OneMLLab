@@ -45,8 +45,8 @@ create policy "posts public read" on public.posts
 drop policy if exists "posts owner write" on public.posts;
 create policy "posts owner write" on public.posts
   for all
-  using      ((auth.jwt() ->> 'email') = 'kazif2122r@gmail.com')   -- OWNER_EMAIL
-  with check ((auth.jwt() ->> 'email') = 'kazif2122r@gmail.com');  -- OWNER_EMAIL
+  using      ((auth.jwt() ->> 'email') = 'kazrocks.bd@gmail.com')   -- OWNER_EMAIL
+  with check ((auth.jwt() ->> 'email') = 'kazrocks.bd@gmail.com');  -- OWNER_EMAIL
 
 -- 3. Image storage bucket ----------------------------------------------------
 insert into storage.buckets (id, name, public)
@@ -61,19 +61,19 @@ drop policy if exists "images owner write" on storage.objects;
 create policy "images owner write" on storage.objects
   for insert with check (
     bucket_id = 'post-images'
-    and (auth.jwt() ->> 'email') = 'kazif2122r@gmail.com'  -- OWNER_EMAIL
+    and (auth.jwt() ->> 'email') = 'kazrocks.bd@gmail.com'  -- OWNER_EMAIL
   );
 
 drop policy if exists "images owner update" on storage.objects;
 create policy "images owner update" on storage.objects
   for update using (
     bucket_id = 'post-images'
-    and (auth.jwt() ->> 'email') = 'kazif2122r@gmail.com'  -- OWNER_EMAIL
+    and (auth.jwt() ->> 'email') = 'kazrocks.bd@gmail.com'  -- OWNER_EMAIL
   );
 
 drop policy if exists "images owner delete" on storage.objects;
 create policy "images owner delete" on storage.objects
   for delete using (
     bucket_id = 'post-images'
-    and (auth.jwt() ->> 'email') = 'kazif2122r@gmail.com'  -- OWNER_EMAIL
+    and (auth.jwt() ->> 'email') = 'kazrocks.bd@gmail.com'  -- OWNER_EMAIL
   );
