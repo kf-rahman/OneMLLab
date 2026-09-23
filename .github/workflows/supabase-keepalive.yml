@@ -1,0 +1,48 @@
+name: Supabase keep-alive
+
+# Supabase pauses a free-tier project after 7 consecutive days with no requests,
+# and a paused project stops resolving in DNS — which breaks the blog list on the
+# homepage. One cheap read every other day counts as activity and resets the clock.
+
+on:
+  schedule:
+    # 06:00 UTC, every other day. GitHub may delay scheduled runs under load;
+    # the 7-day pause window leaves plenty of slack for that.
+    - cron: "0 6 */2 * *"
+  workflow_dispatch: # lets you run it by hand from the Actions tab
+
+permissions:
+  contents: read
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Read Supabase URL + anon key from assets/config.js
+        id: cfg
+        # Single source of truth: config.js is what the site itself uses, so this
+        # can't drift. The anon key is public by design (RLS does the protecting).
+        run: |
+          node -e '
+            global.window = {};
+            require("./assets/config.js");
+            const { url, anonKey } = window.SUPA;
+            if (!url || !anonKey) { console.error("config.js missing url/anonKey"); process.exit(1); }
+            console.log("url=" + url);
+            console.log("key=" + anonKey);
+          ' >> "$GITHUB_OUTPUT"
+
+      - name: Ping the posts table
+        run: |
+          code=$(curl -s -o /tmp/body -w '%{http_code}' -m 20 \
+            -H "apikey: ${{ steps.cfg.outputs.key }}" \
+            -H "Authorization: Bearer ${{ steps.cfg.outputs.key }}" \
+            "${{ steps.cfg.outputs.url }}/rest/v1/posts?select=slug&limit=1")
+          echo "HTTP $code"
+          head -c 300 /tmp/body; echo
+          if [ "$code" != "200" ]; then
+            echo "::error::Supabase did not return 200 — the project may be paused or the schema changed."
+            exit 1
+          fi
